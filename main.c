@@ -44,7 +44,7 @@ typedef enum StatementType { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 
 typedef struct Statement {
   StatementType type;
-  Row row_to_insert; // only used by insert statement
+  Row row_to_insert;  // only used by insert statement
 } Statement;
 
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct *)0)->Attribute)
@@ -88,7 +88,7 @@ typedef struct Table {
 typedef struct Cursor {
   Table *table;
   uint32_t row_num;
-  bool end_of_table; // Indicates a position one past the last element
+  bool end_of_table;  // Indicates a position one past the last element
 } Cursor;
 
 Cursor *table_start(Table *table) {
@@ -305,10 +305,10 @@ PrepareResult prepare_statement(InputBuffer *input_buffer,
 
 Pager *pager_open(const char *filename) {
   int fd = open(filename,
-                O_RDWR |     // Read/Write mode
-                    O_CREAT, // Create file if it does not exist
-                S_IWUSR |    // User write permission
-                    S_IRUSR  // User read permission
+                O_RDWR |      // Read/Write mode
+                    O_CREAT,  // Create file if it does not exist
+                S_IWUSR |     // User write permission
+                    S_IRUSR   // User read permission
   );
 
   if (fd == -1) {
@@ -375,10 +375,10 @@ ExecuteResult execute_select(Statement *statement, Table *table) {
 
 ExecuteResult execute_statement(Statement *statement, Table *table) {
   switch (statement->type) {
-  case (STATEMENT_INSERT):
-    return execute_insert(statement, table);
-  case (STATEMENT_SELECT):
-    return execute_select(statement, table);
+    case (STATEMENT_INSERT):
+      return execute_insert(statement, table);
+    case (STATEMENT_SELECT):
+      return execute_select(statement, table);
   }
 }
 
@@ -399,41 +399,41 @@ int main(int argc, char *argv[]) {
 
     if (input_buffer->buffer[0] == '.') {
       switch (do_meta_command(input_buffer, table)) {
-      case (META_COMMAND_SUCCESS):
-        continue;
-      case (META_COMMAND_UNRECOGNIZED_COMMAND):
-        printf("Unrecognized command '%s'\n", input_buffer->buffer);
-        continue;
-      default:
-        break;
+        case (META_COMMAND_SUCCESS):
+          continue;
+        case (META_COMMAND_UNRECOGNIZED_COMMAND):
+          printf("Unrecognized command '%s'\n", input_buffer->buffer);
+          continue;
+        default:
+          break;
       }
     }
 
     Statement statement;
     switch (prepare_statement(input_buffer, &statement)) {
-    case (PREPARE_SUCCESS):
-      break;
-    case (PREPARE_NEGATIVE_ID):
-      printf("ID must be positive.\n");
-      continue;
-    case (PREPARE_STRING_TOO_LONG):
-      printf("String is too long.\n");
-      continue;
-    case (PREPARE_SYNTAX_ERROR):
-      printf("Syntax error. Could not parse statement.\n");
-      continue;
-    case (PREPARE_UNRECOGNIZED_STATEMENT):
-      printf("Unrecognized keyword at start of '%s'\n", input_buffer->buffer);
-      continue;
+      case (PREPARE_SUCCESS):
+        break;
+      case (PREPARE_NEGATIVE_ID):
+        printf("ID must be positive.\n");
+        continue;
+      case (PREPARE_STRING_TOO_LONG):
+        printf("String is too long.\n");
+        continue;
+      case (PREPARE_SYNTAX_ERROR):
+        printf("Syntax error. Could not parse statement.\n");
+        continue;
+      case (PREPARE_UNRECOGNIZED_STATEMENT):
+        printf("Unrecognized keyword at start of '%s'\n", input_buffer->buffer);
+        continue;
     }
 
     switch (execute_statement(&statement, table)) {
-    case (EXECUTE_SUCCESS):
-      printf("Executed.\n");
-      break;
-    case (EXECUTE_TABLE_FULL):
-      printf("Error: Table full.\n");
-      break;
+      case (EXECUTE_SUCCESS):
+        printf("Executed.\n");
+        break;
+      case (EXECUTE_TABLE_FULL):
+        printf("Error: Table full.\n");
+        break;
     }
   }
   return 0;
