@@ -6,6 +6,5 @@ database:main.c
 clean:
 	rm database
 
-test:
-	gcc main.c -g -o database
+test:database
 	rspec test.rb
